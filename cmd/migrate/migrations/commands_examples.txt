@@ -1,0 +1,1 @@
+Criar arquivos de migrations: migrate create -ext (extensão) -dir (diretório onde serão criados) -seq (nome arquivos)
