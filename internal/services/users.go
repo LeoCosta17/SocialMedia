@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/LeoCosta17/SocialMedia/internal/models"
 	"github.com/LeoCosta17/SocialMedia/internal/store"
@@ -36,4 +37,32 @@ func (s *UsersService) GetByID(ctx context.Context, userId uint64) (*models.User
 	}
 
 	return user, nil
+}
+
+func (s *UsersService) Follow(ctx context.Context, followerID, followedID uint64) (uint64, error) {
+
+	if followerID == followedID {
+		return 0, errors.New("you cannot follow yourself!")
+	}
+
+	rowsInserted, err := s.store.Users.Follow(ctx, followerID, followedID)
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsInserted, nil
+
+}
+
+func (s *UsersService) Unfollow(ctx context.Context, followerID, followedID uint64) (uint64, error) {
+	if followerID == followedID {
+		return 0, errors.New("you cannot unfollow yourself!")
+	}
+
+	rowsInserted, err := s.store.Users.Unfollow(ctx, followerID, followedID)
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsInserted, nil
 }

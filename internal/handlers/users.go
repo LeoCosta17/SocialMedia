@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/LeoCosta17/SocialMedia/internal/customError"
 	"github.com/LeoCosta17/SocialMedia/internal/models"
 	"github.com/LeoCosta17/SocialMedia/internal/request"
 	"github.com/LeoCosta17/SocialMedia/internal/responses"
@@ -45,9 +47,56 @@ func (h *UsersHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	post, err := h.services.Users.GetByID(ctx, userId)
 	if err != nil {
+		if errors.Is(err, customError.ErrorNotFound) {
+			responses.NotFoundError(w, r, err)
+			return
+		}
 		responses.InternalServerError(w, r, err)
 		return
 	}
 
 	responses.WriteJSON(w, http.StatusOK, post)
+}
+
+func (h *UsersHandler) Follow(w http.ResponseWriter, r *http.Request) {
+
+	followerID := 5
+
+	userToFollowID, err := strconv.ParseUint(r.PathValue("user_id"), 10, 64)
+	if err != nil {
+		responses.BadRequestError(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	rowsInserted, err := h.services.Users.Follow(ctx, uint64(followerID), userToFollowID)
+	if err != nil {
+		responses.InternalServerError(w, r, err)
+		return
+	}
+
+	responses.WriteJSON(w, http.StatusCreated, rowsInserted)
+}
+
+func (h *UsersHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
+
+	followerID := 5
+
+	userID, err := strconv.ParseUint(r.PathValue("user_id"), 10, 64)
+	if err != nil {
+		responses.BadRequestError(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	rowsInserted, err := h.services.Users.Unfollow(ctx, uint64(followerID), userID)
+	if err != nil {
+		responses.InternalServerError(w, r, err)
+		return
+	}
+
+	responses.WriteJSON(w, http.StatusCreated, rowsInserted)
+
 }

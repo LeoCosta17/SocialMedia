@@ -27,7 +27,11 @@ func mount(app *application) http.Handler {
 
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/", app.handler.Users.Create)
-		r.Get("/{user_id}", app.handler.Users.GetByID)
+		r.Route("/{user_id}", func(r chi.Router) {
+			r.Get("/", app.handler.Users.GetByID)
+			r.Put("/follow", app.handler.Users.Follow)
+			r.Put("/unfollow", app.handler.Users.Unfollow)
+		})
 	})
 
 	r.Route("/posts", func(r chi.Router) {

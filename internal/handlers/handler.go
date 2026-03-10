@@ -8,8 +8,14 @@ import (
 
 type Handler struct {
 	Users interface {
+		// Create a new user
 		Create(http.ResponseWriter, *http.Request)
+		// Get a user by ID
 		GetByID(http.ResponseWriter, *http.Request)
+		// Follow a user
+		Follow(http.ResponseWriter, *http.Request)
+		// Unfollow a user
+		Unfollow(http.ResponseWriter, *http.Request)
 	}
 	Posts interface {
 		Create(http.ResponseWriter, *http.Request)

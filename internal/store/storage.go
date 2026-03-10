@@ -25,6 +25,10 @@ type Storage struct {
 	Users interface {
 		Create(context.Context, *models.User) error
 		GetByID(context.Context, uint64) (*models.User, error)
+		Follow(context.Context, uint64, uint64) (uint64, error)
+		// Receives the request context, follower ID and the user ID
+		// Should return a uint64 (and should be 1) and an error
+		Unfollow(context.Context, uint64, uint64) (uint64, error)
 	}
 	Comments interface {
 		Create(context.Context, *models.Comment) error

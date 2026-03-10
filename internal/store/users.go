@@ -63,3 +63,43 @@ func (s *UsersStorage) GetByID(ctx context.Context, userId uint64) (*models.User
 
 	return &user, nil
 }
+
+func (s *UsersStorage) Follow(ctx context.Context, followerID, userID uint64) (uint64, error) {
+
+	query := `
+		INSERT INTO followers (user_id, follower_id)
+		VALUES ($1, $2)
+	`
+
+	result, err := s.db.ExecContext(ctx, query, userID, followerID)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsInserted, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(rowsInserted), nil
+}
+
+func (s *UsersStorage) Unfollow(ctx context.Context, followerID, userID uint64) (uint64, error) {
+
+	query := `
+		DELETE FROM followers WHERE follower_id = $1 AND user_id = $2
+	`
+
+	result, err := s.db.ExecContext(ctx, query, followerID, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsInserted, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(rowsInserted), nil
+
+}
