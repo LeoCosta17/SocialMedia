@@ -11,6 +11,7 @@ type Post struct {
 	UserID    uint64    `json:"user_id,omitempty"`
 	Tags      []string  `json:"tags,omitempty"`
 	Comments  []Comment `json:"comments,omitempty"`
+	User      User      `json:"user,omitempty"`
 	CreatedAt string    `json:"created_at,omitempty"`
 	UpdatedAt string    `json:"updated_at,omitempty"`
 }

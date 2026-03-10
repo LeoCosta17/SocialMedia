@@ -106,6 +106,10 @@ func (s *PostsStorage) GetPost(ctx context.Context, postId uint64) (*models.Post
 	return post, nil
 }
 
+func (s *PostsStorage) GetUserFeed(ctx context.Context, userID uint64) ([]models.Post, error) {
+
+}
+
 func (s *PostsStorage) Update(ctx context.Context, postId uint64, post *models.Post) (uint64, error) {
 
 	query := `

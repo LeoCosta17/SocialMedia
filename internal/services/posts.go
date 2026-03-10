@@ -38,6 +38,16 @@ func (s *PostsService) GetPost(ctx context.Context, postId uint64) (*models.Post
 	return post, nil
 }
 
+func (s *PostsService) GetUserFeed(ctx context.Context, userID uint64) ([]models.Post, error) {
+
+	feed, err := s.store.Posts.GetUserFeed(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return feed, nil
+}
+
 func (s *PostsService) Update(ctx context.Context, postId uint64, post *models.Post) (uint64, error) {
 
 	if err := post.ValidateOnCreationUpdate(); err != nil {
