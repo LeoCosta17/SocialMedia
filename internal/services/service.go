@@ -11,6 +11,9 @@ type Service struct {
 	Posts interface {
 		Create(ctx context.Context, post *models.Post) error
 		GetPost(ctx context.Context, postId uint64) (*models.Post, error)
+		// Get all post that is from the user or his followed accounts
+		// Receives the request context and the user ID (logged user) - Returns a list of models.PostFeed and a error
+		GetUserFeed(ctx context.Context, userID uint64, feedQuery models.PaginatedFeedQuery) ([]models.PostFeed, error)
 		Update(ctx context.Context, postId uint64, post *models.Post) (uint64, error)
 		Delete(ctx context.Context, postId uint64) (uint64, error)
 	}

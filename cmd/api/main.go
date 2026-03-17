@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/LeoCosta17/SocialMedia/internal/db"
@@ -9,10 +8,12 @@ import (
 	"github.com/LeoCosta17/SocialMedia/internal/handlers"
 	service "github.com/LeoCosta17/SocialMedia/internal/services"
 	"github.com/LeoCosta17/SocialMedia/internal/store"
+	"go.uber.org/zap"
 )
 
 func main() {
 
+	// API configs struct
 	cfg := config{
 		addr: env.GetString("ADDR", ":8080"),
 		dbConfig: dbConfig{
@@ -23,6 +24,11 @@ func main() {
 		},
 	}
 
+	// Logger init
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	// Database configs struct
 	db, err := db.New(
 		cfg.dbConfig.addr,
 		cfg.dbConfig.maxOpenConns,
@@ -30,22 +36,26 @@ func main() {
 		cfg.dbConfig.maxIdleTime,
 	)
 	if err != nil {
-		log.Fatalf("error starting db pool: %s", err)
+		logger.Fatal(err)
 	}
 	defer db.Close()
+
+	logger.Info("database connection pool established")
 
 	storage := store.NewPostgresStorage(db)
 	service := service.NewService(storage)
 	handler := handlers.NewHandler(service)
 
+	// API struct
 	app := &application{
 		config:  cfg,
 		handler: handler,
 		service: service,
 		storage: storage,
+		logger:  logger,
 	}
 
 	r := mount(app)
 
-	log.Fatal(app.run(r))
+	logger.Fatal(app.run(r))
 }

@@ -25,6 +25,8 @@ func mount(app *application) http.Handler {
 		responses.WriteJSON(w, http.StatusOK, data)
 	})
 
+	r.Get("/", app.handler.Feed.GetFeed)
+
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/", app.handler.Users.Create)
 		r.Route("/{user_id}", func(r chi.Router) {

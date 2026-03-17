@@ -23,6 +23,9 @@ type Handler struct {
 		Update(http.ResponseWriter, *http.Request)
 		Delete(http.ResponseWriter, *http.Request)
 	}
+	Feed interface {
+		GetFeed(http.ResponseWriter, *http.Request)
+	}
 	Comments interface {
 		GetAll(http.ResponseWriter, *http.Request)
 		Create(http.ResponseWriter, *http.Request)
@@ -33,6 +36,7 @@ func NewHandler(service service.Service) Handler {
 	return Handler{
 		Users:    &UsersHandler{services: service},
 		Posts:    &PostsHandler{services: service},
+		Feed:     &FeedHandler{services: service},
 		Comments: &CommentsHandler{services: service},
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/LeoCosta17/SocialMedia/internal/customError"
 	"github.com/LeoCosta17/SocialMedia/internal/models"
@@ -106,8 +107,59 @@ func (s *PostsStorage) GetPost(ctx context.Context, postId uint64) (*models.Post
 	return post, nil
 }
 
-func (s *PostsStorage) GetUserFeed(ctx context.Context, userID uint64) ([]models.Post, error) {
+func (s *PostsStorage) GetUserFeed(ctx context.Context, userID uint64, feedQuery models.PaginatedFeedQuery) ([]models.PostFeed, error) {
 
+	query := fmt.Sprintf(`
+		SELECT p.id, p.user_id, p.title, p.content, p.created_at, p.tags,
+        u.username, 
+       (SELECT COUNT(id) FROM comments WHERE post_id = p.id) AS comments_count
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		WHERE
+			(p.user_id = $1 OR p.user_id IN (SELECT user_id FROM followers WHERE follower_id = $1))
+			AND (p.title ILIKE '%%' || $4 || '%%' OR p.content ILIKE '%%' || $4 || '%%')
+		ORDER BY p.created_at %s
+		LIMIT $2 OFFSET $3;
+
+	`, feedQuery.Sort)
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeOut)
+	defer cancel()
+
+	rows, err := s.db.QueryContext(
+		ctx,
+		query,
+		userID,
+		feedQuery.Limit,
+		feedQuery.Offset,
+		feedQuery.Search)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var feed []models.PostFeed
+
+	for rows.Next() {
+		var post models.PostFeed
+
+		if err := rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Title,
+			&post.Content,
+			&post.CreatedAt,
+			pq.Array(&post.Tags),
+			&post.User.Username,
+			&post.CommentsCount,
+		); err != nil {
+			return nil, err
+		}
+
+		feed = append(feed, post)
+	}
+
+	return feed, nil
 }
 
 func (s *PostsStorage) Update(ctx context.Context, postId uint64, post *models.Post) (uint64, error) {

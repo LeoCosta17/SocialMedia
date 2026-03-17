@@ -19,6 +19,7 @@ type Storage struct {
 	Posts interface {
 		Create(context.Context, *models.Post) error
 		GetPost(context.Context, uint64) (*models.Post, error)
+		GetUserFeed(ctx context.Context, userID uint64, feedQuery models.PaginatedFeedQuery) ([]models.PostFeed, error)
 		Update(ctx context.Context, postId uint64, post *models.Post) (uint64, error)
 		Delete(ctx context.Context, postId uint64) (uint64, error)
 	}

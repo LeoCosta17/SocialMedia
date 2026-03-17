@@ -38,9 +38,9 @@ func (s *PostsService) GetPost(ctx context.Context, postId uint64) (*models.Post
 	return post, nil
 }
 
-func (s *PostsService) GetUserFeed(ctx context.Context, userID uint64) ([]models.Post, error) {
+func (s *PostsService) GetUserFeed(ctx context.Context, userID uint64, feedQuery models.PaginatedFeedQuery) ([]models.PostFeed, error) {
 
-	feed, err := s.store.Posts.GetUserFeed(ctx, userID)
+	feed, err := s.store.Posts.GetUserFeed(ctx, userID, feedQuery)
 	if err != nil {
 		return nil, err
 	}

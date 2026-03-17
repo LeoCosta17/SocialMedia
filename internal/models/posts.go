@@ -16,6 +16,11 @@ type Post struct {
 	UpdatedAt string    `json:"updated_at,omitempty"`
 }
 
+type PostFeed struct {
+	Post
+	CommentsCount uint64 `json:"comments_count,omitempty"`
+}
+
 func (p *Post) ValidateOnCreationUpdate() error {
 	if p.Content == "" {
 		return errors.New("content required")
